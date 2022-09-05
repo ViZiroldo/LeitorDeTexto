@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="utf-8">
+    <title>Leitor de texto</title>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <meta content="" name="keywords">
+    <meta content="" name="description">
+
+    <!-- Template Stylesheet -->
+    <link href="css/style.css" rel="stylesheet">
+</head>
+
+<body>
+    <main>
+        <p class="title">Leitor de texto</p>
+        <div class="text-section">
+            <p class="text-title">Digite o texto</p>
+            <textarea name="" id="text" ></textarea>
+        </div>
+        <div class="voice-section">
+            <p class="voice-title">Selecione o idioma</p>
+            <select name="" id="voice">
+                <option value="Google US English">Google US English</option>
+            </select>
+        </div>
+        <button class="submit">Converter para fala</button>
+    </main>
+
+    <script>
+        const textarea = document.querySelector('#text')
+        let voicelist = document.querySelector('#voice')
+        let speechbtn = document.querySelector('.submit')
+        let synth = speechSynthesis
+        let isSpeaking = true
+
+        function voicespeech() {
+            for (let voice of synth.getVoices()) {
+                let option = document.createElement('option')
+                option.text = voice.name
+                voicelist.add(option)
+                console.log(option)
+            }
+        }
+
+        synth.addEventListener('voiceschanged', voicespeech)
+
+        function texttospeech(text) {
+            let utternance = new SpeechSynthesisUtterance(text)
+            for (let voice of synth.getVoices()) {
+                if (voice.name == voicelist.value) {
+                    utternance.voice = voice
+                }
+            }
+            speechSynthesis.speak(utternance)
+        }
+
+        speechbtn.addEventListener('click', (e) => {
+            e.preventDefault()
+            if (textarea.value != ''){
+                if(!synth.speaking) {
+                    texttospeech(textarea.value)
+                }
+            }
+            if (textarea.value.length > 80) {
+                if (isSpeaking) {
+                    synth.resume()
+                    isSpeaking = false
+                    speechbtn.innerHTML = 'Pausar'
+                } else { 
+                    synth.pause()
+                    isSpeaking = true
+                    speechbtn.innerHTML = 'Continuar'
+                }
+                setInterval(() => {
+                    if (!synth.speaking && !isSpeaking) {
+                        isSpeaking = true
+                        speechbtn.innerHTML = 'Converter para fala'
+                    }
+                })
+            } else {
+                speechbtn.innerHTML = 'Converter para fala'
+            }
+        })
+    </script>
+</body>
+
+</html>
